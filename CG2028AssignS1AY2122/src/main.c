@@ -5,8 +5,9 @@
 // (c) CG2028 Teaching Team, ECE NUS, 2021
 
 
-int classification_cCode(int* arg1, int* arg2, int* arg3);
-extern int classification(int* arg1, int* arg2, int* arg3);// reference C implementation
+int classification_cCode(int* arg1, int* arg2, int* arg3);    // C implementation (reference)
+extern int classification(int* arg1, int* arg2, int* arg3);   // Assembly implementation
+
 int main(void)
 {
 	int i,j;
@@ -47,19 +48,20 @@ int main(void)
 
 	while (1); //halt
 }
+
 int classification_cCode(int*points,int* centroids, int* class)
 {
 	int i,j;
 	int d[CENTROID][DATAPOINT]; // squared Euclidean distance
-	//int d1[DATAPOINT]; // squared Euclidean distance
 	int d0_counter=0,d1_counter=0;
-
 
 	for (i=0; i<DATAPOINT; i++)
 	{
 		//(*((centroids+i) + j))
-		d[0][i] = ((*((points+i*2) + 0))-(*((centroids+0*2) + 0))) * ((*((points+i*2) + 0))-(*((centroids+0*2) + 0)))+ ((*((points+i*2) + 1))-(*((centroids+0*2) + 1)))*((*((points+i*2) + 1))-(*((centroids+0*2) + 1)));
-		d[1][i] = ((*((points+i*2) + 0))-(*((centroids+1*2) + 0))) * ((*((points+i*2) + 0))-(*((centroids+1*2) + 0)))+ ((*((points+i*2) + 1))-(*((centroids+1*2) + 1)))*((*((points+i*2) + 1))-(*((centroids+1*2) + 1)));
+		d[0][i] = ((*((points+i*2) + 0))-(*((centroids+0*2) + 0))) * ((*((points+i*2) + 0))-(*((centroids+0*2) + 0))) 
+            + ((*((points+i*2) + 1))-(*((centroids+0*2) + 1))) * ((*((points+i*2) + 1))-(*((centroids+0*2) + 1)));
+
+		d[1][i] = ((*((points+i*2) + 0)) - (*((centroids+1*2) + 0))) * ((*((points+i*2) + 0)) - (*((centroids+1*2) + 0))) + ((*((points+i*2) + 1))-(*((centroids+1*2) + 1))) * ((*((points+i*2) + 1))-(*((centroids+1*2) + 1)));
 
 		if(d[0][i]<d[1][i])
 		{
@@ -72,11 +74,13 @@ int classification_cCode(int*points,int* centroids, int* class)
 			d1_counter++;
 		}
 	}
-	// print all distances
+
+	// print all distances, no need to implement in Assembly
 	for (i=0; i<DATAPOINT; i++)
 	{
 		printf( "point %d = centroid 1-->%d centroid 2 -->%d , class = %d \n",i+1, d[0][i],d[1][i],class[i]) ;
-	}
+    }
+
 	if(d1_counter>d0_counter)
 		return 1;
 	else
