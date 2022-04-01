@@ -48,8 +48,8 @@ classification:
         LDR R5, =0x0     @ initialize distance between point to centroid0 as 0
         LDR R6, =0x0     @ initialize distance between point to centroid1 as 0
         MOV R7, R1       @ initialize R7 with STARTING address of points10[CENTROID][2]
-        LDR R8, =0x0     @ counter for looping through d[CENTROID][DATAPOINT]
-        LDR R9, =0x0     @ counter for matching ONE point10 (x,y) to TWO centroid00 (x,y), and then filling in ONE corresponding COLUMN in d[CENTROID][DATAPOINT]
+        LDR R8, =0x0     @ counter for looping through all DATAPOINTS
+        LDR R9, =0x0     @ counter for matching ONE point10 (x,y) to TWO centroid10 (x,y)
         MOV R12, R3      @ save the STARTING address of class[DATAPOINT], need to use it later
 
 
@@ -73,7 +73,7 @@ loop_p:
         ITTEE NE
         MOVNE R5, R10         @ if only found out ONE distance so far, then record this distance in R5
         MOVNE R7, R1          @ if only found out ONE distance so far, then points10[CENTROID][2] needs to be reset
-        STREQ R10, [R6]       @ if found out TWO distances already, store this distance in R6
+        MOVEQ R10, R6         @ if found out TWO distances already, record this distance in R6
         LDREQ R9, =0x0        @ if found out TWO distances already, reset the counter
 
         BNE loop_p            @ if only ONE distance found so far, proceed to match current point to 2nd centroid
@@ -91,7 +91,7 @@ loop_d:
 
         CMP R5, R6           @ point-centroid0 vs point-centroid1, does R5 - R6
 
-        ITE PL               @ condition = R5 - R6 is POSITIVE or ZERO
+        ITE PL                @ condition = R5 - R6 is POSITIVE or ZERO
         STRPL R10, [R3], #4   @ distance in R5 is larger, so point must belong to centroid0
         STRMI R11, [R3], #4   @ distance in R6 is larger, so point must belong to centroid1
 
