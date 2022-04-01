@@ -16,8 +16,19 @@
 @R1 - points10[DATAPOINT][2]   (arg1)
 @R2 - centroids10[CENTROID][2] (arg2)
 @R3 - class[DATAPOINT]         (arg3)
-@R4 -
-@R5 - 
+@R4 - starting address of centroids10[CENTROID][2]
+@R5 - starting address of d[CENTROID][DATAPOINT]
+@R6 - starting address of d[CENTROID][DATAPOINT]
+@R7 - starting address of points10[CENTROID][2]
+@R8 - counter for looping through d[CENTROID][DATAPOINT]
+@R9 - counter for matching ONE point10 (x,y) to TWO centroid10 (x,y), and then filling in ONE corresponding COLUMN in d[CENTROID][DATAPOINT]
+@R10 - x-coordinate of some points10 point
+@      x-coordinate of point-centroid
+@      squared difference of x-coordinates between point and centroid
+@      squared Euclidean distance between some data point and centroid
+@R11 - y-coordinate of some points10 point
+@      y-coordinate of point-centroid
+@      squared difference of y-coordinates between point and centroid
 @....
 
 classification:
@@ -35,7 +46,7 @@ classification:
         LDR R5, =d       @ load STARTING address of d[CENTROID][DATAPOINT]
         MOV R6, R5       @ copy STARTING address of d[CENTROID][DATAPOINT]
         MOV R7, R1       @ initialize R7 with STARTING address of points10[CENTROID][2]
-		LDR R8, =0x0     @ counter for looping through d[CENTROID][DATAPOINT]
+        LDR R8, =0x0     @ counter for looping through d[CENTROID][DATAPOINT]
         LDR R9, =0x0     @ counter for matching ONE point10 (x,y) to TWO centroid10 (x,y), and then filling in ONE corresponding COLUMN in d[CENTROID][DATAPOINT]
 
 
@@ -71,7 +82,6 @@ check_p:
         BEQ loop_d          @ if matched, proceed to next point
 
 
-
 @ each loop iteration fills up a VERTICAL column in d[CENTROID][DATAPOINT]
 loop_d:
         MOV R4, R2           @ restore R4 with STARTING address of centroids10[CENTROID][2]
@@ -82,7 +92,15 @@ loop_d:
         ADDS R8, R8, #1      @ increment "i" variable
         CMP R8, =DATAPOINT   @ i == DATAPOINT in for loop?
         BNE loop_p           @ if not, still need to fill-up d[CENTROID][DATAPOINT] 
-        B _exit              @ else, can proceed to second part
+        B classifyPoint      @ else, can proceed to second part
+
+
+@ loop through d[CENTROID][DATAPOINT], and check which class each point belongs to
+classifyPoint:
+        LDR R5, =d
+        
+
+
 
 
 
