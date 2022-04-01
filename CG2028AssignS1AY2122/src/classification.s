@@ -17,11 +17,11 @@
 @R2 - centroids10[CENTROID][2] (arg2)
 @R3 - class[DATAPOINT]         (arg3)
 @R4 - starting address of centroids10[CENTROID][2]
-@R5 - starting address of d[CENTROID][DATAPOINT]
-@R6 - starting address of d[CENTROID][DATAPOINT]
+@R5 - ONE points10 point compared to centroid0
+@R6 - same points10 point in R5 compared to centroid1
 @R7 - starting address of points10[CENTROID][2]
-@R8 - counter for looping through d[CENTROID][DATAPOINT]
-@R9 - counter for matching ONE point10 (x,y) to TWO centroid10 (x,y), and then filling in ONE corresponding COLUMN in d[CENTROID][DATAPOINT]
+@R8 - counter for looping through all DATAPOINTS
+@R9 - counter for matching ONE point10 (x,y) to TWO centroid10 (x,y)
 @R10 - x-coordinate of some points10 point
 @      x-coordinate of point-centroid
 @      squared difference of x-coordinates between point and centroid
@@ -29,6 +29,8 @@
 @R11 - y-coordinate of some points10 point
 @      y-coordinate of point-centroid
 @      squared difference of y-coordinates between point and centroid
+@R12 - starting address of class[DATAPOINT]
+@
 @....
 
 classification:
@@ -43,14 +45,15 @@ classification:
 
 @ write asm function body here
         MOV R4, R2       @ initialize R4 with STARTING address of centroids10[CENTROID][2]
-        LDR R5, =d       @ load STARTING address of d[CENTROID][DATAPOINT]
-        MOV R6, R5       @ copy STARTING address of d[CENTROID][DATAPOINT]
+        LDR R5, =0x0     @ initialize distance between point to centroid0 as 0
+        LDR R6, =0x0     @ initialize distance between point to centroid1 as 0
         MOV R7, R1       @ initialize R7 with STARTING address of points10[CENTROID][2]
         LDR R8, =0x0     @ counter for looping through d[CENTROID][DATAPOINT]
-        LDR R9, =0x0     @ counter for matching ONE point10 (x,y) to TWO centroid10 (x,y), and then filling in ONE corresponding COLUMN in d[CENTROID][DATAPOINT]
+        LDR R9, =0x0     @ counter for matching ONE point10 (x,y) to TWO centroid00 (x,y), and then filling in ONE corresponding COLUMN in d[CENTROID][DATAPOINT]
+        MOV R12, R3      @ save the STARTING address of class[DATAPOINT], need to use it later
 
 
-@ each loop iteration matches ONE point10 (x,y) to ONE centroid10 (x,y), and then fills in ONE corresponding entry in d[][]
+@ each loop iteration matches ONE point10 (x,y) to ONE centroid10 (x,y)
 loop_p:
         LDR R10, [R7], #4     @ POST-INDEX load contents of points10[DATAPOINT][2], x-coordinate of some point
         LDR R11, [R4], #4     @ POST-INDEX load contents of centroids10[CENTROID][2], x-coordinate of some centroid
@@ -63,41 +66,45 @@ loop_p:
         MUL R11, R11, R11     @ squared difference of y-coordinates
 
         ADD R10, R10, R11     @ squared Euclidean distance between some data point and centroid
-        STR R10, [R6]         @ NORMAL store contents of R10 into R6
 
-        B check_p
-
-
-check_p:
-        ADD R9, R9, #1      @ increment counter
-        CMP R9, #2          @ have we matched ONE point10 (x,y) to TWO centroid10 (x,y)?
+        ADD R9, R9, #1        @ increment counter
+        CMP R9, #2            @ have we found out TWO distances between point and centroid0/centroid0?
 
         ITTEE NE
-        ADDNE R6, #32       @ if not matched yet, then d[CENTROID][DATAPOINT] needs to be incremented by 32 (still same point)
-        MOVNE R7, R1        @ if not matched yet, then points10[CENTROID][2] needs to be reset
-        ADDEQ R5, #4        @ if matched, then d[CENTROID][DATAPOINT] needs to be incremented by 4 (move on to next point)
-        LDREQ R9, =0x0      @ if matched, reset the counter
+        MOVNE R5, R10         @ if only found out ONE distance so far, then record this distance in R5
+        MOVNE R7, R1          @ if only found out ONE distance so far, then points10[CENTROID][2] needs to be reset
+        STREQ R10, [R6]       @ if found out TWO distances already, store this distance in R6
+        LDREQ R9, =0x0        @ if found out TWO distances already, reset the counter
 
-        BNE loop_p          @ if not matched yet, proceed to match current point to 2nd centroid
-        BEQ loop_d          @ if matched, proceed to next point
+        BNE loop_p            @ if only ONE distance found so far, proceed to match current point to 2nd centroid
+        BEQ loop_d            @ else, proceed to next point
 
 
-@ each loop iteration fills up a VERTICAL column in d[CENTROID][DATAPOINT]
+@ each loop iteration fills in an entry in class[DATAPOINTS]
 loop_d:
         MOV R4, R2           @ restore R4 with STARTING address of centroids10[CENTROID][2]
-        MOV R6, R5           @ initialize R6 with new d[CENTROID][DATAPOINT]
         ADD R1, #8           @ go to next points10 point
         MOV R7, R1           @ go to next points10 point
 
-        ADDS R8, R8, #1      @ increment "i" variable
-        CMP R8, =DATAPOINT   @ i == DATAPOINT in for loop?
-        BNE loop_p           @ if not, still need to fill-up d[CENTROID][DATAPOINT] 
-        B classifyPoint      @ else, can proceed to second part
+        LDR R10, =0x0        @ point will belong to centroid0
+        LDR R11, =0x1        @ point will belong to centroid1
+
+        CMP R5, R6           @ point-centroid0 vs point-centroid1, does R5 - R6
+
+        ITE PL               @ condition = R5 - R6 is POSITIVE or ZERO
+        STRPL R10, [R3], #4   @ distance in R5 is larger, so point must belong to centroid0
+        STRMI R11, [R3], #4   @ distance in R6 is larger, so point must belong to centroid1
+
+        ADDS R8, R8, #1            @ increment "i" variable
+        CMP R8, =DATAPOINT         @ i == DATAPOINT in for loop?
+
+        BNE loop_p                 @ if not, still have more points to classify
+        B whichCentroidMorePoints  @ else, can proceed to second part
 
 
-@ loop through d[CENTROID][DATAPOINT], and check which class each point belongs to
-classifyPoint:
-        LDR R5, =d
+@ iterate through class[DATAPOINT]
+whichCentroidMorePoints:
+        MOV R3, R12
         
 
 
