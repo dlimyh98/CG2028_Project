@@ -40,13 +40,13 @@ classification:
 @ Equates
         .equ DATAPOINT, 0x8
 
-@ PUSH / save (only those) registers which are modified by your function
+@ PUSH / save (only those) registers which are modified by your function, parameter registers need not be saved
 		PUSH {R3-R11,R14}
 
 @ parameter registers need not be saved.
 
 @ write asm function body here
-        MOV R3, R1       @ initialize R4 with STARTING address of centroids10[CENTROID][2]
+        MOV R3, R1       @ initialize R3 with STARTING address of centroids10[CENTROID][2]
         LDR R4, =0x0     @ initialize distance between point to centroid0 as 0
         LDR R5, =0x0     @ initialize distance between point to centroid1 as 0
         MOV R6, R0       @ initialize R6 with STARTING address of points10[CENTROID][2]
@@ -124,8 +124,8 @@ loop_c:
 
         CMP R3, R4         @ points in centroid0 - points in centroid1
         ITE MI             @ condition: centroid0 has less points than centroid1
-        MOVMI R7, #1       @ R8 stores centroid with larger amount of points (centroid1 here)
-        MOVPL R7, #0       @ R8 stores centroid with larger amount of points (centroid0 here)
+        MOVMI R7, #1       @ NEGATIVE: R7 stores centroid with larger amount of points (centroid1 here)
+        MOVPL R7, #0       @ POSITIVE OR ZERO: R7 stores centroid with larger amount of points (centroid0 or centroid1 here)
 
         SUB R5, #1         @ decrement iteration counter through class[DATAPOINTS]
         B loop_c           @ loop back again

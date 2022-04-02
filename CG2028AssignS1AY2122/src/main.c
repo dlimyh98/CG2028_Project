@@ -42,7 +42,7 @@ int main(void)
 		for (j=0; j<2; j++)
 			centroids10[i][j] = centroids[i][j]*10;
 
-	// Call assembly language function to perform classification
+	// Call assembly language function to perform classification, .asm function should run INDEPEDENTLY of .c function
 	printf( "C  : class %d contains more datapoint \n", classification_cCode(points10,centroids10,class)) ;
 	printf( "asm: class %d contains more datapoint \n", classification(points10,centroids10,class)) ;
 
