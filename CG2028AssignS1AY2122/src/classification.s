@@ -14,7 +14,7 @@
 @ Register map, DATAPOINTS = 8, CENTROID = 2
 @ R0 - points10[DATAPOINT][2] (arg1)
        returns class that contains MORE data points
-@ R1 - centroids10[CENTROID][2]   (arg2)
+@ R1 - centroids10[CENTROID][2] (arg2)
 @ R2 - class[DATAPOINT] (arg3)
 @ R3 - starting address of centroids10[CENTROID][2]
        counter for number of points under centroid0
@@ -41,7 +41,7 @@ classification:
         .equ DATAPOINT, 0x8
 
 @ PUSH / save (only those) registers which are modified by your function
-		PUSH {R1-R4,R14}
+		PUSH {R3-R11,R14}
 
 @ parameter registers need not be saved.
 
@@ -131,18 +131,17 @@ loop_c:
         B loop_c           @ loop back again
 
 
-
-
-
 @ prepare value to return (class) to C program in R0
 returnClass:
 		MOVW R0, R7    @ R7 contains the centroid number with the most points
 
-@ POP / restore original register values. DO NOT save or restore R0. Why?
-		POP {R1-R4,R14}
+@ POP / restore original register values. DO NOT save or restore R0. Since return value is stored in R0
+		POP {R3-R11,R14}
 
 @ return to C program
 		BX	LR
+
+
 
 @ branch to SUBROUTINE for illustration only
 		BL SUBROUTINE
