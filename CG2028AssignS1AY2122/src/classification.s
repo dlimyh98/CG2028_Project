@@ -13,13 +13,13 @@
 
 @ Register map, DATAPOINTS = 8, CENTROID = 2
 @ R0 - points10[DATAPOINT][2] (arg1)
-       returns class that contains MORE data points
+@      returns class that contains MORE data points
 @ R1 - centroids10[CENTROID][2] (arg2)
 @ R2 - class[DATAPOINT] (arg3)
 @ R3 - starting address of centroids10[CENTROID][2]
-       counter for number of points under centroid0
+@       counter for number of points under centroid0
 @ R4 - ONE points10 point compared to centroid0
-       counter for number of points under centroid1
+@       counter for number of points under centroid1
 @ R5 - same points10 point in R5 compared to centroid1
 @ R6 - starting address of points10[CENTROID][2]
 @ R7 - counter for looping through all DATAPOINTS
@@ -96,7 +96,7 @@ loop_d:
         STRMI R10, [R2], #4   @ distance in R5 is larger, so point must belong to centroid1
 
         ADD R7, R7, #1            @ increment "i" variable
-        CMP R7, =DATAPOINT        @ i == DATAPOINT in for loop?
+        CMP R7, DATAPOINT        @ i == DATAPOINT in for loop?
 
         BNE loop_p                 @ if not, still have more points to classify
         B whichCentroidMorePoints  @ else, can proceed to second part
@@ -133,7 +133,7 @@ loop_c:
 
 @ prepare value to return (class) to C program in R0
 returnClass:
-		MOVW R0, R7    @ R7 contains the centroid number with the most points
+		MOV R0,R7    @ R7 contains the centroid number with the most points
 
 @ POP / restore original register values. DO NOT save or restore R0. Since return value is stored in R0
 		POP {R3-R11,R14}
