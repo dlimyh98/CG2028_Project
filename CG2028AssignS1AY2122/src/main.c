@@ -12,18 +12,18 @@ int main(void)
 {
 	int i,j;
 
-	double points[DATAPOINT][2] = { {0.0, 0.0},
-							{0.0, 1.0},
-							{1.0, 1.0},
-							{1.0, 0.0},
-							{3.0, 0.0},
-							{3.0, 1.0},
-							{4.0, 0.0},
-							{4.0, 1.0} };
+	double points[DATAPOINT][2] = {{8.0, 2.5},
+	                                {10.0, 2.0},
+	                                {9.0, 5.0},
+	                                {4.0, 0.5},
+	                                {8.0, 8.0},
+	                                {3.0, 9.0},
+	                                {6.0, 0.0},
+	                                {4.0, 0.5}};
 
 
-	double centroids[CENTROID][2] ={ {0.0, 0.5},
-							  {1.0, 1.5} };
+	double centroids[CENTROID][2] ={ {4.0, 0.5},
+	                                  {8.0, 2.5}};
 
 
 	int points10[DATAPOINT][2];
@@ -45,6 +45,13 @@ int main(void)
 	// Call assembly language function to perform classification, .asm function should run INDEPEDENTLY of .c function
 	printf( "C  : class %d contains more datapoint \n", classification_cCode(points10,centroids10,class)) ;
 	printf( "asm: class %d contains more datapoint \n", classification(points10,centroids10,class)) ;
+
+	// Debugging print statement after .asm function runs
+	// to see how the .asm function classified the points
+	/*for (i=0; i<DATAPOINT; i++)
+		{
+			printf( "class = %d \n",class[i]) ;
+	    }*/
 
 	while (1); //halt
 }

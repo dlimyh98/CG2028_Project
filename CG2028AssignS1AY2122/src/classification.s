@@ -17,9 +17,9 @@
 @ R1 - centroids10[CENTROID][2] (arg2)
 @ R2 - class[DATAPOINT] (arg3)
 @ R3 - starting address of centroids10[CENTROID][2]
-@       counter for number of points under centroid0
+@      counter for number of points under centroid0
 @ R4 - ONE points10 point compared to centroid0
-@       counter for number of points under centroid1
+@      counter for number of points under centroid1
 @ R5 - same points10 point in R5 compared to centroid1
 @ R6 - starting address of points10[CENTROID][2]
 @ R7 - counter for looping through all DATAPOINTS
@@ -31,7 +31,7 @@
 @ R10 - y-coordinate of some points10 point
 @       y-coordinate of point-centroid
 @       squared difference of y-coordinates between point and centroid
-@ R11 - starting address of class[DATAPOINT]
+@ R12 - starting address of class[DATAPOINT]
 @
 @....
 
@@ -52,7 +52,7 @@ classification:
         MOV R6, R0       @ initialize R6 with STARTING address of points10[CENTROID][2]
         LDR R7, =0x0     @ counter for looping through all DATAPOINTS
         LDR R8, =0x0     @ counter for matching ONE point10 (x,y) to TWO centroid10 (x,y)
-        MOV R11, R2      @ save the STARTING address of class[DATAPOINT], need to use it later
+        MOV R12, R2      @ save the STARTING address of class[DATAPOINT], need to use it later
 
 
 @ each loop iteration matches ONE point10 (x,y) to ONE centroid10 (x,y)
@@ -72,9 +72,9 @@ loop_p:
         ADD R8, R8, #1        @ increment counter
         CMP R8, #2            @ have we found out TWO distances between point and centroid0/centroid0?
         ITTEE NE
-        MOVNE R4, R9          @ if only found out ONE distance so far, then record this distance in R5
+        MOVNE R4, R9          @ if only found out ONE distance so far, then record this distance in R4
         MOVNE R6, R0          @ if only found out ONE distance so far, then points10[CENTROID][2] needs to be reset
-        MOVEQ R5, R9          @ if found out TWO distances already, record this distance in R6
+        MOVEQ R5, R9          @ if found out TWO distances already, record this distance in R5
         LDREQ R8, =0x0        @ if found out TWO distances already, reset the counter
 
         BNE loop_p            @ if only ONE distance found so far, proceed to match current point to 2nd centroid
@@ -87,23 +87,23 @@ loop_d:
         ADD R0, #8           @ go to next points10 point
         MOV R6, R0           @ go to next points10 point
 
-        LDR R9, =0x0         @ point will belong to centroid0
-        LDR R10, =0x1        @ point will belong to centroid1
+        MOV R9, #0         @ point will belong to centroid0
+        MOV R10, #1        @ point will belong to centroid1
 
         CMP R4, R5            @ point-centroid0 vs point-centroid1, does R4 - R5
-        ITE PL                @ condition: R4 - R5 is POSITIVE or ZERO
-        STRPL R9, [R2], #4    @ distance in R4 is larger, so point must belong to centroid0
-        STRMI R10, [R2], #4   @ distance in R5 is larger, so point must belong to centroid1
+        ITE GE                @ condition: R4 >= R5 (SIGNED)
+        STRGE R10, [R2], #4    @ R4 >= R5, so point must belong to centroid1
+        STRLT R9, [R2], #4     @ R4 < R5, so point must belong to centroid0
 
         ADD R7, R7, #1            @ increment "i" variable
-        CMP R7, DATAPOINT        @ i == DATAPOINT in for loop?
+        CMP R7, DATAPOINT         @ i == DATAPOINT in for loop?
 
-        BNE loop_p                 @ if not, still have more points to classify
-        B whichCentroidMorePoints  @ else, can proceed to second part
+        BNE loop_p                   @ if not, still have more points to classify
+        BEQ whichCentroidMorePoints  @ else, can proceed to second part
 
 
 whichCentroidMorePoints:
-        MOV R2, R11         @ restore R2 to STARTING address of class[DATAPOINTS]
+        MOV R2, R12         @ restore R2 to STARTING address of class[DATAPOINTS]
         LDR R3, =0x0        @ counter for number of points under centroid0
         LDR R4, =0x0        @ counter for number of points under centroid1
         LDR R5, =DATAPOINT  @ iterate through class[DATAPOINTS]
