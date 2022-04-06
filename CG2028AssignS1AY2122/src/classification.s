@@ -9,7 +9,7 @@
 @ (c) CG2028 Teaching Team, ECE NUS, 2021
 
 @ student 1: Name: Damien Lim Yu Hao, Matriculation No.: A0223892Y
-@ student 2: Name: , Matriculation No.:
+@ student 2: Name: Kairos Koh Jia Jun, Matriculation No.: A0222617L
 
 @ Register map, DATAPOINTS = 8, CENTROID = 2
 @ R0 - points10[DATAPOINT][2] (arg1)
