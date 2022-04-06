@@ -1,36 +1,36 @@
 -------------------------- Data Processing Instructions (x4) -----------------------------
 1. MOV R12, R2 (Line 55); MOV Rd Rm
-   0b0000 00 0 1101 0 0000 1100 0000000 0 0010
+   0b0000 00 0 1101 0 0000 1100 0000000 0 0010, 0x01A0C002
       X   op I cmd  S  Rn   Rd     X    M  Rm
 
 2. SUB R9, R9, R10 (Line 62); SUB Rd, Rn, Rm
-   0b0000 00 0 0010 0 1001 1001 0000000 0 1010
+   0b0000 00 0 0010 0 1001 1001 0000000 0 1010, 0x0049900A
       X   op I cmd  S  Rn   Rd     X    M  Rm
 
 3. MUL R9, R9, R9 (Line 63); MUL Rd, Rm, Rs
-   0b0000 00 0 0000 0 0000 1001 1001 000 1 1001
+   0b0000 00 0 0000 0 0000 1001 1001 000 1 1001, 0x00009919
       X   op I cmd  S  Rn   Rd   Rs   X  M  Rm
 
-4. ADD R9, R9, R10 (Line 70); ADD Rd, Rn, Rm
+4. ADD R9, R9, R10 (Line 70); ADD Rd, Rn, Rm, 0x0089900A
    0b0000 00 0 0100 0 1001 1001 0000000 0 1010
       X   op I cmd  S  Rn   Rd     X    M  Rm
 
 
 ------------------------ Memory Instructions (x4) -------------------------------
 1. LDR R9, [R6], #4 (Line 60); LDR Rd, [Rn], #offset where Rd is DESTINATION for LOAD
-   0b0000 01 0 0 1 0 0 1 0110 1001 0000 00000100
+   0b0000 01 0 0 1 0 0 1 0110 1001 0000 00000100, 0x04969004
       X   op X P U X W L  Rn   Rd    X    imm8
 
 2. LDR R10, [R6] (Line 65); LDR Rd, [Rn, #offset] where Rd is DESTINATION for LOAD
-   0b0000 01 0 1 0 0 0 1 0110 1010 0000 00000000
+   0b0000 01 0 1 0 0 0 1 0110 1010 0000 00000000, 0x0516A000
       X   op X P U X W L  Rn   Rd    X    imm8
 
-3. STRGE R10, [R2], #4 (Line 95); STR Rd, [Rn, #offset] where Rd is SOURCE for STORE
-   0b0000 01 0 1 1 0 0 0 0010 1010 0000 00000100
+3. STRGE R10, [R2], #4 (Line 95); STR Rd, [Rn], #offset where Rd is SOURCE for STORE
+   0b0000 01 0 0 1 0 0 0 0010 1010 0000 00000100, 0x0482A004
       X   op X P U X W L  Rn   Rd    X    imm8
 
-4. STRGE R9, [R2], #4 (Line 96); STR Rd, [Rn, #offset] where Rd is SOURCE for STORE
-   0b0000 01 0 1 1 0 0 0 0010 1001 0000 00000100
+4. STRGE R9, [R2], #4 (Line 96); STR Rd, [Rn], #offset where Rd is SOURCE for STORE
+   0b0000 01 0 0 1 0 0 0 0010 1001 0000 00000100, 0x04829004
       X   op X P U X W L  Rn   Rd    X    imm8
 
 
@@ -39,13 +39,13 @@
 1. BNE loop_p (Line 80)
    - need to branch back 17 instructions (each instruction has 4 bytes) from PC+4
    - offset = BTA (assume 0x0) - (PC+4) = 0x0 - 0x44 = -0x44
-   0b0001 10 0 0 0 0 0 0 000000000000 01000100
+   0b0001 10 0 0 0 0 0 0 000000000000 01000100, 0x18000044
     cond  op X X U X X X       X        imm8
 
 2. BEQ loop_d (Line 81)
    - need to branch forward 0 instructions (each instruction has 4 bytes) from PC+4
    - offset = BTA (assume 0x0) - (PC+4) = 0x0 - 0x0 = 0x0
-   0b0000 10 0 0 0 0 0 0 000000000000 00000000
+   0b0000 10 0 0 1 0 0 0 000000000000 00000000, 0x08800000
     cond  op X X U X X X       X        imm8
 
 

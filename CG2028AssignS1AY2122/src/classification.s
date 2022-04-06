@@ -52,22 +52,22 @@ classification:
         MOV R6, R0       @ initialize R6 with STARTING address of points10[CENTROID][2]
         LDR R7, =0x0     @ counter for looping through all DATAPOINTS
         LDR R8, =0x0     @ counter for matching ONE point10 (x,y) to TWO centroid10 (x,y)
-        MOV R12, R2      @ save the STARTING address of class[DATAPOINT], need to use it later
+        MOV R12, R2      @ 0x01A0C002, save the STARTING address of class[DATAPOINT], need to use it later
 
 
 @ each loop iteration matches ONE point10 (x,y) to ONE centroid10 (x,y)
 loop_p:
-        LDR R9, [R6], #4      @ POST-INDEX load contents of points10[DATAPOINT][2], x-coordinate of some point
+        LDR R9, [R6], #4      @ 0x04969004, POST-INDEX load contents of points10[DATAPOINT][2], x-coordinate of some point
         LDR R10, [R3], #4     @ POST-INDEX load contents of centroids10[CENTROID][2], x-coordinate of some centroid
-        SUB R9, R9, R10       @ x-coordinate of points10 MINUS x-coordinate of centroids10, store in R9
-        MUL R9, R9, R9        @ squared difference of x-coordinates
+        SUB R9, R9, R10       @ 0x0049900A, x-coordinate of points10 MINUS x-coordinate of centroids10, store in R9
+        MUL R9, R9, R9        @ 0x00009919, squared difference of x-coordinates
 
-        LDR R10, [R6]         @ NORMAL load contents of points10[DATAPOINT][2], y-coordinate of SAME point above
+        LDR R10, [R6]         @ 0x0516A000, NORMAL load contents of points10[DATAPOINT][2], y-coordinate of SAME point above
         LDR R11, [R3], #4     @ POST-INDEX load contents of centroids10[CENTROID][2], y-coordinate of SAME centroid above
         SUB R10, R10, R11     @ y-coordinate of points10 MINUS y-coordinate of centroids10, store in R10
         MUL R10, R10, R10     @ squared difference of y-coordinates
 
-        ADD R9, R9, R10       @ squared Euclidean distance between some data point and centroid
+        ADD R9, R9, R10       @ 0x0089900A, squared Euclidean distance between some data point and centroid
 
         ADD R8, R8, #1        @ increment counter
         CMP R8, #2            @ have we found out TWO distances between point and centroid0/centroid0?
@@ -77,8 +77,8 @@ loop_p:
         MOVEQ R5, R9          @ if found out TWO distances already, record this distance in R5
         LDREQ R8, =0x0        @ if found out TWO distances already, reset the counter
 
-        BNE loop_p            @ if only ONE distance found so far, proceed to match current point to 2nd centroid
-        BEQ loop_d            @ else, proceed to next point
+        BNE loop_p            @ 0x18000044, if only ONE distance found so far, proceed to match current point to 2nd centroid
+        BEQ loop_d            @ 0x08800000, else, proceed to next point
 
 
 @ each loop iteration fills in an entry in class[DATAPOINTS]
@@ -92,8 +92,8 @@ loop_d:
 
         CMP R4, R5            @ point-centroid0 vs point-centroid1, does R4 - R5
         ITE GE                @ condition: R4 >= R5 (SIGNED)
-        STRGE R10, [R2], #4    @ R4 >= R5, so point must belong to centroid1
-        STRLT R9, [R2], #4     @ R4 < R5, so point must belong to centroid0
+        STRGE R10, [R2], #4   @ 0x0482A004, R4 >= R5, so point must belong to centroid1
+        STRLT R9, [R2], #4    @ 0x04829004, R4 < R5, so point must belong to centroid0
 
         ADD R7, R7, #1            @ increment "i" variable
         CMP R7, DATAPOINT         @ i == DATAPOINT in for loop?
